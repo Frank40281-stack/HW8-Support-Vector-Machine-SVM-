@@ -145,6 +145,11 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+# 3D Animation Video Demo
+st.subheader("Manim 3D Dimension Transition Video")
+st.write("This video shows the transition animation from 2D space to 3D space, demonstrating how the hyperplane separates the classes:")
+st.video("demo_animation.mp4")
+
 st.markdown("""
 ### How it works:
 1. **2D Space (X_1, X_2)**: The red points are clustered in the center, and the blue points surround them. There is no straight line that can separate them in 2D.
