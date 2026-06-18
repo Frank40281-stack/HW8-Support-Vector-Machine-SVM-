@@ -59,3 +59,17 @@ This log documents all discussions, Q&As, debugging steps, and solutions impleme
         - `git config user.name "Frank40281-stack"`
         - `git config user.email "frank40281@example.com"`
 *   **Push & Landing Page:** Pushed the repository to GitHub. Updated [README.md](file:///d:/%E6%9B%BE%E6%98%B1%E8%AA%A0AI%E4%BD%9C%E6%A5%AD/hw9-0618/README.md) to place the deployed Streamlit Cloud URL ([https://n6ayb9qgwndzqt98hxaflr.streamlit.app/](https://n6ayb9qgwndzqt98hxaflr.streamlit.app/)) at the very top.
+
+---
+
+### 6. Phase 4: Interactive Dimension Lift Animation & Real-time Playback
+*   **Goal:** Make the dimension lift transition fully dynamic and interactive so that the animation updates in real-time as the user adjusts hyperparameters.
+*   **Q&A:**
+    *   *Q:* How do we implement smooth transition animations in Streamlit that react to C, Gamma, and Noise?
+    *   *A:* We use Streamlit `st.session_state` synced with the "Dimension Lift" slider. By caching parameters, we detect adjustments and automatically reset the slider to 0.0, running a server-driven rerun loop (`st.rerun()` with `time.sleep()`) to smoothly increment the lift. We also add Play, Pause, and Reset buttons and a playback speed selector.
+    *   *Q:* What happens if the user manually drags the slider during playback?
+    *   *A:* We monitor if the slider's returned value is different from the session state before the render. If a discrepancy is found, it means the user manually interacted, so we immediately pause the animation to give them control.
+*   **Solution implemented:**
+    *   Updated [streamlit_app.py](file:///d:/曾昱誠AI作業/hw9-0618/streamlit_app.py) to manage the animation states.
+    *   Corrected minor `SyntaxWarning: invalid escape sequence '\g'` warning by changing the new info block text to a raw string literal `r"""..."""`.
+    *   Updated [README.md](file:///d:/曾昱誠AI作業/hw9-0618/README.md) and pushed modifications to GitHub to automatically sync with the live Streamlit Community Cloud page.

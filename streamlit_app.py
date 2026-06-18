@@ -3,13 +3,30 @@ import numpy as np
 from sklearn.datasets import make_circles
 from sklearn.svm import SVC
 import plotly.graph_objects as go
+import time
 
 st.set_page_config(page_title="SVM RBF Kernel 3D Interactive Visualizer", layout="wide")
+
+# Initialize session state for animation
+if "transition_val" not in st.session_state:
+    st.session_state.transition_val = 1.0
+if "is_playing" not in st.session_state:
+    st.session_state.is_playing = False
+if "prev_c" not in st.session_state:
+    st.session_state.prev_c = 1.0
+if "prev_gamma" not in st.session_state:
+    st.session_state.prev_gamma = 1.0
+if "prev_noise" not in st.session_state:
+    st.session_state.prev_noise = 0.08
 
 st.title("Interactive SVM RBF Kernel 3D Visualization")
 st.write("""
 This interactive tool visualizes how the **Support Vector Machine (SVM) Radial Basis Function (RBF) Kernel** maps 
 a 2D linearly inseparable dataset (concentric circles) into a higher-dimensional 3D space, making it linearly separable.
+""")
+st.info(r"""
+💡 **互動式即時動畫功能**：您可以使用左側側邊欄的 **Playback Controls (播放控制)** 來播放、暫停或重設 3D 空間維度上升 (Dimension Lift) 的動畫。
+當您調整側邊欄的 SVM 超參數 ($C$、$\gamma$、雜訊) 時，動畫會**自動重新播放**，讓您即時觀察在不同參數下特徵空間是如何被拉升與分類的！
 """)
 
 # Sidebar controls
@@ -17,6 +34,73 @@ st.sidebar.header("SVM Hyperparameters")
 c_val = st.sidebar.slider("Regularization Parameter (C)", min_value=0.1, max_value=10.0, value=1.0, step=0.1)
 gamma_val = st.sidebar.slider("RBF Kernel Coefficient (Gamma)", min_value=0.1, max_value=5.0, value=1.0, step=0.1)
 noise_val = st.sidebar.slider("Dataset Noise", min_value=0.0, max_value=0.3, value=0.08, step=0.01)
+
+st.sidebar.markdown("---")
+st.sidebar.header("3D Dimension Transition")
+
+# Auto-play on change checkbox
+auto_play = st.sidebar.checkbox(
+    "Auto-play on parameter change",
+    value=True,
+    help="Automatically play the dimension lift transition animation when you adjust hyperparameters."
+)
+
+# Playback controls
+st.sidebar.subheader("Playback Controls")
+col_play, col_pause, col_reset = st.sidebar.columns(3)
+with col_play:
+    if st.button("▶️ Play", use_container_width=True):
+        st.session_state.is_playing = True
+        if st.session_state.transition_val >= 1.0:
+            st.session_state.transition_val = 0.0
+        st.rerun()
+with col_pause:
+    if st.button("⏸️ Pause", use_container_width=True):
+        st.session_state.is_playing = False
+        st.rerun()
+with col_reset:
+    if st.button("🔄 Reset", use_container_width=True):
+        st.session_state.transition_val = 0.0
+        st.session_state.is_playing = False
+        st.rerun()
+
+# Animation speed
+anim_speed = st.sidebar.slider(
+    "Animation Speed",
+    min_value=0.01,
+    max_value=0.10,
+    value=0.04,
+    step=0.01,
+    help="Adjust how fast the transition animation plays."
+)
+
+# Slider driven by session state
+current_t = st.session_state.transition_val
+transition_val = st.sidebar.slider(
+    "Dimension Lift (2D ➡️ 3D)",
+    min_value=0.0,
+    max_value=1.0,
+    value=current_t,
+    step=0.02,
+    help="Drag to manually animate: 0% is flat 2D space, 100% is fully mapped 3D space."
+)
+
+# Handle user manual dragging
+if transition_val != current_t:
+    st.session_state.transition_val = transition_val
+    if st.session_state.is_playing:
+        st.session_state.is_playing = False
+
+# Detect hyperparameter change for auto-play
+if (st.session_state.prev_c != c_val or 
+    st.session_state.prev_gamma != gamma_val or 
+    st.session_state.prev_noise != noise_val):
+    st.session_state.prev_c = c_val
+    st.session_state.prev_gamma = gamma_val
+    st.session_state.prev_noise = noise_val
+    if auto_play:
+        st.session_state.transition_val = 0.0
+        st.session_state.is_playing = True
 
 # Generate data
 X, y = make_circles(n_samples=100, noise=noise_val, factor=0.5, random_state=42)
@@ -50,7 +134,7 @@ c0_mask = y == 0
 fig.add_trace(go.Scatter3d(
     x=X[c0_mask, 0],
     y=X[c0_mask, 1],
-    z=scores[c0_mask],
+    z=scores[c0_mask] * transition_val,
     mode='markers',
     name='Class 0 (Inner)',
     marker=dict(
@@ -65,7 +149,7 @@ c1_mask = y == 1
 fig.add_trace(go.Scatter3d(
     x=X[c1_mask, 0],
     y=X[c1_mask, 1],
-    z=scores[c1_mask],
+    z=scores[c1_mask] * transition_val,
     mode='markers',
     name='Class 1 (Outer)',
     marker=dict(
@@ -79,7 +163,7 @@ fig.add_trace(go.Scatter3d(
 fig.add_trace(go.Scatter3d(
     x=X[sv_indices, 0],
     y=X[sv_indices, 1],
-    z=scores[sv_indices],
+    z=scores[sv_indices] * transition_val,
     mode='markers',
     name='Support Vectors',
     marker=dict(
@@ -101,7 +185,7 @@ fig.add_trace(go.Surface(
     x=X_grid,
     y=Y_grid,
     z=Z_grid,
-    colorscale=[[0, 'rgba(128,128,128,0.35)'], [1, 'rgba(128,128,128,0.35)']],
+    colorscale=[[0, f'rgba(128,128,128,{0.35 * transition_val})'], [1, f'rgba(128,128,128,{0.35 * transition_val})']],
     showscale=False,
     name='Hyperplane (Z=0)',
     hoverinfo='skip'
@@ -119,13 +203,22 @@ Z_dense = Z_dense.reshape(X_dense.shape)
 fig.add_trace(go.Surface(
     x=X_dense,
     y=Y_dense,
-    z=Z_dense,
+    z=Z_dense * transition_val,
     colorscale='RdBu',
-    opacity=0.45,
+    opacity=0.45 * transition_val,
     showscale=True,
     colorbar=dict(title="Decision Score", thickness=15),
     name='Decision Boundary Landscape'
 ))
+
+# Interpolate camera eye and up vector based on transition value
+t = transition_val
+camera_eye = dict(
+    x=1.4 * t + 0.001 * (1 - t),
+    y=1.4 * t + 0.001 * (1 - t),
+    z=1.1 * t + 2.2 * (1 - t)
+)
+camera_up = dict(x=0, y=1, z=0) if t < 0.1 else dict(x=0, y=0, z=1)
 
 # Customize Layout
 fig.update_layout(
@@ -133,9 +226,10 @@ fig.update_layout(
     scene=dict(
         xaxis=dict(title='X_1', range=[-1.8, 1.8]),
         yaxis=dict(title='X_2', range=[-1.8, 1.8]),
-        zaxis=dict(title='Z (Decision Score)'),
+        zaxis=dict(title='Z (Decision Score)', range=[-2.2, 2.2]),
         camera=dict(
-            eye=dict(x=1.4, y=1.4, z=1.1)
+            eye=camera_eye,
+            up=camera_up
         )
     ),
     margin=dict(l=0, r=0, b=0, t=40),
@@ -225,3 +319,13 @@ st.markdown("""
 SVM 是一個**「重質不重量」**的演算法。它非常適合用在**特徵很多、但樣本量中等**（通常在幾萬筆以內）的精準分類場景。
 * 📝 **典型應用**：文本分類（如垃圾郵件偵測）、圖像識別（如人臉識別）、生物資訊學（如基因蛋白分類與癌症預測）。
 """)
+
+# Playback loop (runs after rendering the page)
+if st.session_state.is_playing:
+    if st.session_state.transition_val < 1.0:
+        st.session_state.transition_val = min(1.0, st.session_state.transition_val + anim_speed)
+        time.sleep(0.03)  # Frame pacing
+        st.rerun()
+    else:
+        st.session_state.is_playing = False
+        st.rerun()

@@ -17,6 +17,10 @@
 2. **📊 Streamlit 實時互動網頁 (Interactive Web Dashboard)**
    - 搭載動態調參側邊欄：可自由調節 **C (懲罰係數)**、**Gamma ($\gamma$, 核函數係數)** 以及 **Dataset Noise (雜訊強度)**。
    - Plotly 3D 互動圖表：可自由縮放、翻轉 3D 視角，即時繪製出所有的點、高亮的支持向量球體、 $Z=0$ 的平面，以及 **SVM 3D 決策邊界曲面景觀 (Decision Boundary Surface Landscape)**。
+   - **實時升維互動動畫 (Interactive Real-time Lift Animation)**：
+     - 提供「Dimension Lift」滑桿，手動控制資料點從 2D 平面升起到 3D 空間的動態過程，相機視角會自動隨之傾斜。
+     - **Playback Controls (播放控制)**：新增播放 (Play)、暫停 (Pause)、重設 (Reset) 控制按鈕與動畫速度 (Speed) 調節。
+     - **自動重新播放 (Auto-play on parameter change)**：當使用者調整超參數 ($C$、$\gamma$、雜訊) 時，3D 圖表會自動重設為 2D 平面並重新播放升維過渡動畫，呈現特徵空間的即時拉升過程！
    - 整合演示影片：直接在網頁中嵌入了預先渲染完成的 Manim 動畫。
 
 ---
