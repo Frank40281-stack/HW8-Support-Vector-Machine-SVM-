@@ -3,6 +3,7 @@ from sklearn.datasets import make_circles
 from sklearn.svm import SVC
 import json
 import os
+import joblib
 
 def main():
     # 1. Generate concentric circles data
@@ -76,6 +77,11 @@ def main():
         json.dump(output_data, f, indent=4)
         
     print(f"Data successfully generated and saved to {output_path}!")
+
+    # 7. Save the trained model to joblib
+    model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "svm_model.joblib")
+    joblib.dump(clf, model_path)
+    print(f"Model successfully serialized and saved to {model_path}!")
 
 if __name__ == "__main__":
     main()
