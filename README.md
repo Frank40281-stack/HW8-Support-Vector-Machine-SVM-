@@ -1,6 +1,8 @@
 # SVM RBF Kernel 3D Visualization & Interactive Dashboard
 > **支持向量機 (SVM) 徑向基函數 (RBF) 核技巧 3D 視覺化與互動超平面網頁**
 
+🔗 **線上展示網址 (Live Demo):** [https://n6ayb9qgwndzqt98hxaflr.streamlit.app/](https://n6ayb9qgwndzqt98hxaflr.streamlit.app/)
+
 本專案是一個完整且優雅的機器學習教學展示工具，用以呈現 **支持向量機 (SVM) 徑向基函數 (RBF) 核技巧 (Kernel Trick)** 的核心數學邏輯與幾何特點。專案生成一個在 2D 空間中線性不可分的「圓環數據（Concentric Circles）」，並藉由訓練 RBF SVM 模型，計算出每個資料點的決策距離得分（Decision Function Score）作為 3D 的 Z 軸，從而展示資料如何在更高維度中變得線性可分。
 
 ---
