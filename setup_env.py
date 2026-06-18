@@ -82,6 +82,7 @@ def main():
     print("Installing Python dependencies inside virtual environment (using pre-built wheels)...")
     subprocess.run([python_exe, "-m", "pip", "install", "--upgrade", "pip"], check=True)
     subprocess.run([python_exe, "-m", "pip", "install", "-r", os.path.join(BASE_DIR, "requirements.txt")], check=True)
+    subprocess.run([python_exe, "-m", "pip", "install", "-r", os.path.join(BASE_DIR, "requirements-dev.txt")], check=True)
 
     # 4. Setup FFmpeg
     ffmpeg_exe = os.path.join(FFMPEG_BIN_DIR, "ffmpeg.exe")
